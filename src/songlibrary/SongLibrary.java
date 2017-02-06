@@ -109,7 +109,7 @@ public class SongLibrary extends Application {
         //root.getChildren().add(list);
         //root.getChildren().addAll(list,btn);
         
-        Scene scene = new Scene(border, 300, 500);
+        Scene scene = new Scene(border, 400, 500);
         
         primaryStage.setTitle("Song Library");
         primaryStage.setScene(scene);
@@ -147,9 +147,13 @@ public class SongLibrary extends Application {
             parameters.setManaged(true);
         }
     }
-    void errorPopUp(){
+    void existsPopUp(){
         Alert alert = new Alert(AlertType.ERROR, "Song name and artist already exist", ButtonType.OK);
         alert.showAndWait();
+    }
+    void missingPopUp(){
+        Alert alert = new Alert(AlertType.ERROR, "Song name or Artist field empty", ButtonType.OK);
+        alert.showAndWait(); 
     }
     GridPane parameters(ListView<Song> list){
         GridPane grid = new GridPane();
@@ -177,13 +181,14 @@ public class SongLibrary extends Application {
                 String year = yearName.getText();
                 if(name.isEmpty() || artist.isEmpty()){
                     //Empty 
+                    missingPopUp();
                 }
                 else{
                     Song tmp = new Song(name,artist,album,year);
                     if(data.contains(tmp)){
                         //pop out instead
                         //System.out.println("Exists");
-                        errorPopUp();
+                        existsPopUp();
                     }
                     else{
                         list.getItems().add(list.getItems().size(), tmp);
@@ -206,13 +211,14 @@ public class SongLibrary extends Application {
                 String year = yearName.getText();
                 if(name.isEmpty() || artist.isEmpty()){
                     //Empty cannot continue
+                    missingPopUp();
                 }
                 else{
                     Song tmp = new Song(name,artist,album,year);
                     if(data.contains(tmp)){
                         //pop out instead
                         //System.out.println("Exists");
-                        errorPopUp();
+                        existsPopUp();
                     }
                     else{
                         data.remove(list.getSelectionModel().getSelectedIndex());
@@ -225,7 +231,16 @@ public class SongLibrary extends Application {
                 }
             }
         });
-        
+        Button cancel = new Button();
+        cancel.setText("Cancel");
+        cancel.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                setVisibility(grid);
+                editPressed=false;
+                addPressed=false;
+            }
+        });
         //Add listener
         grid.add(songLabel, 0,1);
         grid.add(songName, 1,1);
@@ -236,7 +251,8 @@ public class SongLibrary extends Application {
         grid.add(yearLabel, 0,4);
         grid.add(yearName, 1,4);
         grid.add(addSong,0,5);
-        grid.add(editSong,1,5);
+        grid.add(editSong,0,5);
+        grid.add(cancel,1,5);
         return grid;
     }
     HBox headers(GridPane parameters, ListView<Song> list){
@@ -323,6 +339,12 @@ public class SongLibrary extends Application {
                     albumName.setText(newSong.album);
                     yearName.setText(newSong.year);
                 }
+                else{
+                    songName.setText("");
+                    artistName.setText("");
+                    albumName.setText("");
+                    yearName.setText("");
+                }
                 //setVisibility(parameters);
                 for(int i=0; i<data.size(); i++){
                     Song tmp = data.get(i);
@@ -336,6 +358,11 @@ public class SongLibrary extends Application {
         delete.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                if(editPressed || addPressed){
+                    setVisibility(parameters);
+                    editPressed=false;
+                    addPressed=false;
+                }
                 if(!data.isEmpty()){
                     int pos=list.getSelectionModel().getSelectedIndex();
                     data.remove(pos);
@@ -350,6 +377,7 @@ public class SongLibrary extends Application {
             }
         });
         HBox buttons = new HBox();
+        buttons.setAlignment(Pos.CENTER);
         buttons.setPadding(new Insets(15,12,15,12));
         buttons.setSpacing(10);
         buttons.getChildren().addAll(add, edit, delete);

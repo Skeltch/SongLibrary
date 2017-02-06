@@ -23,6 +23,9 @@ import java.util.Scanner;
 import javafx.geometry.Insets;
 import javafx.scene.layout.GridPane;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
@@ -63,6 +66,7 @@ public class SongLibrary extends Application {
         data.sort(Comparator.comparing(Song::getName));
         ListView<Song> list = new ListView<Song>();
         list.setItems(data);
+        GridPane parameters = parameters(list);   
         if(!data.isEmpty()){
             list.getSelectionModel().select(0);
             //displayDetails();
@@ -77,12 +81,15 @@ public class SongLibrary extends Application {
                 //Display details, also check if all songs are deleted newSong is not null
                 if(newSong!=null){
                     System.out.println(newSong.name + " " + newSong.artist);
+                    if(editPressed){
+                        editPressed=false;
+                        setVisibility(parameters);
+                    }
                 }
             }
         });
         
-        BorderPane border = new BorderPane();
-        GridPane parameters = parameters(list);        
+        BorderPane border = new BorderPane();     
         
         VBox header = new VBox();
         HBox buttons = headers(parameters, list);
@@ -140,6 +147,10 @@ public class SongLibrary extends Application {
             parameters.setManaged(true);
         }
     }
+    void errorPopUp(){
+        Alert alert = new Alert(AlertType.ERROR, "Song name and artist already exist", ButtonType.OK);
+        alert.showAndWait();
+    }
     GridPane parameters(ListView<Song> list){
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
@@ -171,7 +182,8 @@ public class SongLibrary extends Application {
                     Song tmp = new Song(name,artist,album,year);
                     if(data.contains(tmp)){
                         //pop out instead
-                        System.out.println("Exists");
+                        //System.out.println("Exists");
+                        errorPopUp();
                     }
                     else{
                         list.getItems().add(list.getItems().size(), tmp);
@@ -199,7 +211,8 @@ public class SongLibrary extends Application {
                     Song tmp = new Song(name,artist,album,year);
                     if(data.contains(tmp)){
                         //pop out instead
-                        System.out.println("Exists");
+                        //System.out.println("Exists");
+                        errorPopUp();
                     }
                     else{
                         data.remove(list.getSelectionModel().getSelectedIndex());

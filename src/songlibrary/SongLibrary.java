@@ -31,6 +31,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 /**
@@ -48,7 +49,7 @@ public class SongLibrary extends Application {
     @Override
     public void start(Stage primaryStage) {
         try{
-            Scanner read = new Scanner(new File("C:\\Users\\Sam\\Desktop\\songLibrary.txt"));
+            Scanner read = new Scanner(new File("C:\\Users\\Samuel\\Desktop\\songLibrary.txt"));
             read.useDelimiter("\n");
             while(read.hasNextLine()){
                 //System.out.println(read.next()+" ");
@@ -71,7 +72,7 @@ public class SongLibrary extends Application {
             list.getSelectionModel().select(0);
             //displayDetails();
         }
-        
+        GridPane details = details();
         //On selection change
         list.getSelectionModel().selectedItemProperty().addListener(
         new ChangeListener<Song>() {
@@ -81,6 +82,10 @@ public class SongLibrary extends Application {
                 //Display details, also check if all songs are deleted newSong is not null
                 if(newSong!=null){
                     System.out.println(newSong.name + " " + newSong.artist);
+                    ((Label)details.getChildren().get(1)).setText(newSong.name);
+                    ((Label)details.getChildren().get(3)).setText(newSong.artist);
+                    ((Label)details.getChildren().get(5)).setText(newSong.album);
+                    ((Label)details.getChildren().get(7)).setText(newSong.year);
                     if(editPressed){
                         editPressed=false;
                         setVisibility(parameters);
@@ -89,15 +94,31 @@ public class SongLibrary extends Application {
             }
         });
         
-        BorderPane border = new BorderPane();     
+        //BorderPane border = new BorderPane();     
         
         VBox header = new VBox();
         HBox buttons = headers(parameters, list);
         header.getChildren().addAll(buttons,parameters);
         setVisibility(parameters);
-        //header.getChildren().remove(parameters);
-        border.setTop(header);
-        border.setCenter(list);
+        VBox actions = new VBox();
+        //VBox.setVgrow(actions, Priority.NEVER);
+        GridPane library = new GridPane();
+        actions.getChildren().addAll(header,list);
+        //HBox library = new HBox();
+        //library.getChildren().addAll(actions,details);
+        library.add(actions,0,0);
+        library.add(details,1,0);
+        ColumnConstraints cc = new ColumnConstraints();
+        cc.setPercentWidth(60);
+        library.getColumnConstraints().add(cc);
+        cc = new ColumnConstraints();
+        cc.setPercentWidth(40);
+        library.getColumnConstraints().add(cc);
+        library.gridLinesVisibleProperty().set(true);
+        //border.setTop(header);
+        //border.setCenter(list);
+        //border.setCenter(actions);
+        //border.setRight(details);
 
         //grid.add(buttons,0,0);
         //grid.add(list,1,2);
@@ -109,10 +130,10 @@ public class SongLibrary extends Application {
         //root.getChildren().add(list);
         //root.getChildren().addAll(list,btn);
         
-        Scene scene = new Scene(border, 400, 500);
-        
+        Scene scene = new Scene(library, 600, 500);
         primaryStage.setTitle("Song Library");
         primaryStage.setScene(scene);
+        primaryStage.setResizable(false);
         primaryStage.show();
     }
 
@@ -125,7 +146,7 @@ public class SongLibrary extends Application {
     @Override
     public void stop(){
         try{
-            PrintWriter writer = new PrintWriter("C:\\Users\\Sam\\Desktop\\songLibrary.txt", "UTF-8");
+            PrintWriter writer = new PrintWriter("C:\\Users\\Samuel\\Desktop\\songLibrary.txt", "UTF-8");
             for(int i=0; i<data.size(); i++){
                 Song tmp = data.get(i);
                 writer.println(tmp.name+","+tmp.artist+","+tmp.album+","+tmp.year);
@@ -162,13 +183,13 @@ public class SongLibrary extends Application {
         grid.setVgap(10);
         grid.setPadding(new Insets(5, 10, 5, 10));
         
-        Label songLabel = new Label("Song Name: ");
+        Label songLabel = new Label("Song: ");
         TextField songName = new TextField();
-        Label artistLabel = new Label("Artist Name: ");
+        Label artistLabel = new Label("Artist: ");
         TextField artistName = new TextField();
-        Label albumLabel = new Label("Album Name: ");
+        Label albumLabel = new Label("Album: ");
         TextField albumName = new TextField();
-        Label yearLabel = new Label("Year Name: ");
+        Label yearLabel = new Label("Year: ");
         TextField yearName = new TextField();
         Button addSong = new Button();
         addSong.setText("Submit");
@@ -215,7 +236,9 @@ public class SongLibrary extends Application {
                 }
                 else{
                     Song tmp = new Song(name,artist,album,year);
-                    if(data.contains(tmp)){
+                    
+                    //if(data.contains(tmp)){
+                    if(data.indexOf(tmp)!=-1 && data.get(data.indexOf(tmp))!=tmp){
                         //pop out instead
                         //System.out.println("Exists");
                         existsPopUp();
@@ -382,5 +405,35 @@ public class SongLibrary extends Application {
         buttons.setSpacing(10);
         buttons.getChildren().addAll(add, edit, delete);
         return buttons;
+    }
+    GridPane details(){
+        GridPane details = new GridPane();
+        ColumnConstraints cc = new ColumnConstraints();
+        cc.setPercentWidth(30);
+        details.getColumnConstraints().add(cc);
+        cc = new ColumnConstraints();
+        cc.setPercentWidth(70);
+        details.getColumnConstraints().add(cc);
+        //details.gridLinesVisibleProperty().set(true);
+        details.setHgap(10);
+        details.setVgap(10);
+        details.setPadding(new Insets(50, 40, 5, 10));
+        Label songLabel = new Label("Song: ");
+        Label songName = new Label("1");
+        Label artistLabel = new Label("Artist: ");
+        Label artistName = new Label();
+        Label albumLabel = new Label("Album: ");
+        Label albumName = new Label();
+        Label yearLabel = new Label("Year: ");
+        Label yearName = new Label();
+        details.add(songLabel, 0,0);
+        details.add(songName, 1,0);
+        details.add(artistLabel, 0,2);
+        details.add(artistName, 1,2);
+        details.add(albumLabel, 0,3);
+        details.add(albumName, 1,3);
+        details.add(yearLabel, 0,4);
+        details.add(yearName, 1,4);
+        return details;
     }
 }

@@ -36,12 +36,10 @@ import javafx.scene.layout.VBox;
 
 /**
  *
- * @author Sam
- * TODO
- * details *set editable to false? separate display on the side?
- * pop up dialog
+ * @author Samuel Cheung
+ * Philip Mak
  */
-public class SongLibrary extends Application {
+public class SongLib extends Application {
     ObservableList<Song> data = FXCollections.observableArrayList();
     boolean addPressed=false;
     boolean editPressed=false;
@@ -49,20 +47,17 @@ public class SongLibrary extends Application {
     @Override
     public void start(Stage primaryStage) {
         try{
-            Scanner read = new Scanner(new File("C:\\Users\\Samuel\\Desktop\\songLibrary.txt"));
+            Scanner read = new Scanner(new File("./songLibrary.txt"));
             read.useDelimiter("\n");
             while(read.hasNextLine()){
-                //System.out.println(read.next()+" ");
                 String line = read.nextLine();
                 String[] split = line.split(",",-1);
                 data.add(new Song(split[0],split[1],split[2],split[3]));
             }
         }
         catch(IOException e){
-            System.out.println("Something went wrong reading the file");
+            //Error reading or creating file
         }
-        //data.add(new Song("Only One", "Kanye West"));
-        //data.add(new Song("Hey Mama", "Kanye West"));
         //Sort by name
         data.sort(Comparator.comparing(Song::getName));
         ListView<Song> list = new ListView<Song>();
@@ -70,7 +65,6 @@ public class SongLibrary extends Application {
         GridPane parameters = parameters(list);   
         if(!data.isEmpty()){
             list.getSelectionModel().select(0);
-            //displayDetails();
         }
         GridPane details = details();
         //On selection change
@@ -81,7 +75,6 @@ public class SongLibrary extends Application {
                 Song oldSong, Song newSong) {
                 //Display details, also check if all songs are deleted newSong is not null
                 if(newSong!=null){
-                    System.out.println(newSong.name + " " + newSong.artist);
                     ((Label)details.getChildren().get(1)).setText(newSong.name);
                     ((Label)details.getChildren().get(3)).setText(newSong.artist);
                     ((Label)details.getChildren().get(5)).setText(newSong.album);
@@ -93,19 +86,17 @@ public class SongLibrary extends Application {
                 }
             }
         });
-        
-        //BorderPane border = new BorderPane();     
+        //Switch to get details to show
+        list.getSelectionModel().select(1);
+        list.getSelectionModel().select(0);
         
         VBox header = new VBox();
         HBox buttons = headers(parameters, list);
         header.getChildren().addAll(buttons,parameters);
         setVisibility(parameters);
         VBox actions = new VBox();
-        //VBox.setVgrow(actions, Priority.NEVER);
         GridPane library = new GridPane();
         actions.getChildren().addAll(header,list);
-        //HBox library = new HBox();
-        //library.getChildren().addAll(actions,details);
         library.add(actions,0,0);
         library.add(details,1,0);
         ColumnConstraints cc = new ColumnConstraints();
@@ -115,20 +106,6 @@ public class SongLibrary extends Application {
         cc.setPercentWidth(40);
         library.getColumnConstraints().add(cc);
         library.gridLinesVisibleProperty().set(true);
-        //border.setTop(header);
-        //border.setCenter(list);
-        //border.setCenter(actions);
-        //border.setRight(details);
-
-        //grid.add(buttons,0,0);
-        //grid.add(list,1,2);
-        //ColumnConstraints col1 = new ColumnConstraints();
-        //col1.setPercentWidth(25);
-        //grid.getColumnConstraints().addAll(col1);
-        //StackPane root = new StackPane();
-        //root.getChildren().add(btn);
-        //root.getChildren().add(list);
-        //root.getChildren().addAll(list,btn);
         
         Scene scene = new Scene(library, 600, 500);
         primaryStage.setTitle("Song Library");
@@ -146,7 +123,7 @@ public class SongLibrary extends Application {
     @Override
     public void stop(){
         try{
-            PrintWriter writer = new PrintWriter("C:\\Users\\Samuel\\Desktop\\songLibrary.txt", "UTF-8");
+            PrintWriter writer = new PrintWriter("./songLibrary.txt", "UTF-8");
             for(int i=0; i<data.size(); i++){
                 Song tmp = data.get(i);
                 writer.println(tmp.name+","+tmp.artist+","+tmp.album+","+tmp.year);
@@ -207,8 +184,6 @@ public class SongLibrary extends Application {
                 else{
                     Song tmp = new Song(name,artist,album,year);
                     if(data.contains(tmp)){
-                        //pop out instead
-                        //System.out.println("Exists");
                         existsPopUp();
                     }
                     else{
@@ -236,11 +211,7 @@ public class SongLibrary extends Application {
                 }
                 else{
                     Song tmp = new Song(name,artist,album,year);
-                    
-                    //if(data.contains(tmp)){
                     if(data.indexOf(tmp)!=-1 && data.get(data.indexOf(tmp))!=tmp){
-                        //pop out instead
-                        //System.out.println("Exists");
                         existsPopUp();
                     }
                     else{
@@ -248,10 +219,10 @@ public class SongLibrary extends Application {
                         list.getItems().add(list.getItems().size(), tmp);
                         list.getSelectionModel().select(list.getItems().size()-1);
                     }
-                    setVisibility(grid);
                     data.sort(Comparator.comparing(Song::getName));
                     editPressed=false;
                 }
+                setVisibility(grid);
             }
         });
         Button cancel = new Button();
@@ -264,7 +235,6 @@ public class SongLibrary extends Application {
                 addPressed=false;
             }
         });
-        //Add listener
         grid.add(songLabel, 0,1);
         grid.add(songName, 1,1);
         grid.add(artistLabel, 0,2);
@@ -310,20 +280,6 @@ public class SongLibrary extends Application {
                 artistName.setText("");
                 albumName.setText("");
                 yearName.setText("");
-                /*
-                Song newSong = new Song("Gold Digger", "Kanye West");
-                //Check if song exists
-                if(data.contains(newSong)){
-                    //popup instead
-                    System.out.println("Exists");
-                }
-                else{
-                    list.getItems().add(list.getItems().size(), newSong);
-                    list.getSelectionModel().select(list.getItems().size()-1);
-                }
-                */          
-                //list.scrollTo(list.getItems().size()-1);
-                //list.edit(list.getItems().size()-1);
             }
         });
         Button edit = new Button();
@@ -347,7 +303,6 @@ public class SongLibrary extends Application {
                 addSubmit.setManaged(false);
                 editSubmit.setVisible(true);
                 editSubmit.setManaged(true);
-                //list.edit(list.getSelectionModel().getSelectedIndex());
                 /*
                 0 1
                 2 3
@@ -367,11 +322,6 @@ public class SongLibrary extends Application {
                     artistName.setText("");
                     albumName.setText("");
                     yearName.setText("");
-                }
-                //setVisibility(parameters);
-                for(int i=0; i<data.size(); i++){
-                    Song tmp = data.get(i);
-                    System.out.println(tmp.name+","+tmp.artist+","+tmp.album+","+tmp.year);
                 }
             }
         });
@@ -395,7 +345,6 @@ public class SongLibrary extends Application {
                     else{
                         list.getSelectionModel().select(pos);
                     }
-                    //list.getSelectionModel().select(list.getItems().size()-1);
                 }
             }
         });
@@ -414,12 +363,11 @@ public class SongLibrary extends Application {
         cc = new ColumnConstraints();
         cc.setPercentWidth(70);
         details.getColumnConstraints().add(cc);
-        //details.gridLinesVisibleProperty().set(true);
         details.setHgap(10);
         details.setVgap(10);
         details.setPadding(new Insets(50, 40, 5, 10));
         Label songLabel = new Label("Song: ");
-        Label songName = new Label("1");
+        Label songName = new Label();
         Label artistLabel = new Label("Artist: ");
         Label artistName = new Label();
         Label albumLabel = new Label("Album: ");

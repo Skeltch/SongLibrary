@@ -4,11 +4,12 @@
  * and open the template in the editor.
  */
 package songlibrary;
-import java.util.Comparator;
 /**
  *
  * @author Sam
  */
+//Everything stored as original, but comparing is used with lowercase since
+//sort and comapring is case insensitive
 public class Song {
     //name and artist required, album and year optional
     //if exists, not allowed
@@ -31,12 +32,11 @@ public class Song {
     //For display of observablelist
     @Override
     public String toString(){
-        //return (this.name + " " + this.artist + " " + this.album + " " + this.year);
         return this.name;
     }
     //For comparator function
     public String getName(){
-        return this.name;
+        return this.name.toLowerCase();
     }
     //For exists function
     @Override
@@ -45,7 +45,7 @@ public class Song {
             return false;
         }
         Song tmp = (Song)obj;
-        if(this.name.equals(tmp.name) && this.artist.equals(tmp.artist)){
+        if(this.name.toLowerCase().equals(tmp.name.toLowerCase()) && this.artist.toLowerCase().equals(tmp.artist.toLowerCase())){
             return true;
         }
         return false;

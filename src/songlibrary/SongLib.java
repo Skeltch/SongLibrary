@@ -63,9 +63,6 @@ public class SongLib extends Application {
         ListView<Song> list = new ListView<Song>();
         list.setItems(data);
         GridPane parameters = parameters(list);   
-        if(!data.isEmpty()){
-            list.getSelectionModel().select(0);
-        }
         GridPane details = details();
         //On selection change
         list.getSelectionModel().selectedItemProperty().addListener(
@@ -85,10 +82,7 @@ public class SongLib extends Application {
                     }
                 }
             }
-        });
-        //Switch to get details to show
-        list.getSelectionModel().select(1);
-        list.getSelectionModel().select(0);
+        });        
         
         VBox header = new VBox();
         HBox buttons = headers(parameters, list);
@@ -112,6 +106,10 @@ public class SongLib extends Application {
         primaryStage.setScene(scene);
         primaryStage.setResizable(false);
         primaryStage.show();
+        
+        if(!data.isEmpty()){
+            list.getSelectionModel().select(0);
+        }
     }
 
     /**
@@ -211,18 +209,20 @@ public class SongLib extends Application {
                 }
                 else{
                     Song tmp = new Song(name,artist,album,year);
-                    if(data.indexOf(tmp)!=-1 && data.get(data.indexOf(tmp))!=tmp){
-                        existsPopUp();
-                    }
-                    else{
+                    if(data.indexOf(tmp)==list.getSelectionModel().getSelectedIndex() || data.indexOf(tmp)==-1){
                         data.remove(list.getSelectionModel().getSelectedIndex());
                         list.getItems().add(list.getItems().size(), tmp);
-                        list.getSelectionModel().select(list.getItems().size()-1);
+                        data.sort(Comparator.comparing(Song::getName));
+                        list.getSelectionModel().select(data.indexOf(tmp));
                     }
-                    data.sort(Comparator.comparing(Song::getName));
-                    editPressed=false;
+                    else{
+                        existsPopUp();
+                    }
                 }
-                setVisibility(grid);
+                //setVisibility(grid);
+                grid.setVisible(false);
+                grid.setManaged(false);
+                editPressed=false;
             }
         });
         Button cancel = new Button();

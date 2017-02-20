@@ -7,6 +7,7 @@ package songlibrary;
 /**
  *
  * @author Sam
+ * Philip Mak
  */
 //Everything stored as original, but comparing is used with lowercase since
 //sort and comapring is case insensitive
